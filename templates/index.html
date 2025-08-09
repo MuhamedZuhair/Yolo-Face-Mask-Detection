@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Mask Detection System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1><i class="fas fa-user-shield"></i> Face Mask Detection System</h1>
+                <p>Advanced AI-powered mask detection using YOLOv8</p>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab('upload')">
+                <i class="fas fa-upload"></i> Upload Images
+            </button>
+            <button class="tab-btn" onclick="switchTab('camera')">
+                <i class="fas fa-camera"></i> Live Camera
+            </button>
+            <button class="tab-btn" onclick="switchTab('monitoring')">
+                <i class="fas fa-clock"></i> Auto Monitoring
+            </button>
+        </nav>
+
+        <!-- Upload Tab -->
+        <div id="upload-tab" class="tab-content active">
+            <div class="upload-section">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-content">
+                        <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                        <h3>Drop images here or click to upload</h3>
+                        <p>Supports JPG, PNG, JPEG formats</p>
+                        <input type="file" id="fileInput" accept="image/*" multiple style="display: none;">
+                        <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                            Choose Files
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Results Section -->
+                <div class="results-section" id="uploadResults" style="display: none;">
+                    <h3><i class="fas fa-chart-bar"></i> Detection Results</h3>
+                    <div class="stats-grid" id="uploadStats"></div>
+                    <div class="images-grid" id="uploadImagesGrid"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Camera Tab -->
+        <div id="camera-tab" class="tab-content">
+            <div class="camera-section">
+                <div class="camera-controls">
+                    <button class="control-btn" id="startCameraBtn" onclick="startCamera()">
+                        <i class="fas fa-play"></i> Start Camera
+                    </button>
+                    <button class="control-btn" id="stopCameraBtn" onclick="stopCamera()" disabled>
+                        <i class="fas fa-stop"></i> Stop Camera
+                    </button>
+                    <button class="control-btn" id="captureBtn" onclick="capturePhoto()" disabled>
+                        <i class="fas fa-camera"></i> Capture Photo
+                    </button>
+                </div>
+                
+                <div class="camera-container">
+                    <video id="videoStream" autoplay muted></video>
+                    <canvas id="captureCanvas" style="display: none;"></canvas>
+                </div>
+                
+                <!-- Camera Results -->
+                <div class="results-section" id="cameraResults" style="display: none;">
+                    <h3><i class="fas fa-images"></i> Captured Images</h3>
+                    <div class="stats-grid" id="cameraStats"></div>
+                    <div class="images-grid" id="cameraImagesGrid"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monitoring Tab -->
+        <div id="monitoring-tab" class="tab-content">
+            <div class="monitoring-section">
+                <div class="monitoring-controls">
+                    <div class="control-group">
+                        <label for="intervalSelect">Capture Interval:</label>
+                        <select id="intervalSelect">
+                            <option value="30">30 seconds</option>
+                            <option value="60">1 minute</option>
+                            <option value="120" selected>2 minutes</option>
+                            <option value="300">5 minutes</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>
+                            <input type="checkbox" id="soundAlerts" checked> Sound alerts for unmasked detection
+                        </label>
+                    </div>
+                    
+                    <div class="monitoring-buttons">
+                        <button class="control-btn" id="startMonitoringBtn" onclick="startMonitoring()">
+                            <i class="fas fa-play-circle"></i> Start Monitoring
+                        </button>
+                        <button class="control-btn" id="stopMonitoringBtn" onclick="stopMonitoring()" disabled>
+                            <i class="fas fa-stop-circle"></i> Stop Monitoring
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="monitoring-status" id="monitoringStatus">
+                    <div class="status-item">
+                        <span class="status-label">Status:</span>
+                        <span class="status-value" id="monitoringStatusText">Stopped</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Next capture in:</span>
+                        <span class="status-value" id="nextCaptureTime">-</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Total captures:</span>
+                        <span class="status-value" id="totalCaptures">0</span>
+                    </div>
+                </div>
+                
+                <div class="camera-container">
+                    <video id="monitoringVideo" autoplay muted style="display: none;"></video>
+                    <canvas id="monitoringCanvas" style="display: none;"></canvas>
+                </div>
+                
+                <!-- Monitoring Results -->
+                <div class="results-section" id="monitoringResults" style="display: none;">
+                    <h3><i class="fas fa-history"></i> Monitoring History</h3>
+                    <div class="stats-grid" id="monitoringStats"></div>
+                    <div class="images-grid" id="monitoringImagesGrid"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+            <div class="loading-content">
+                <div class="spinner"></div>
+                <p>Processing images...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio for alerts -->
+    <audio id="alertSound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMeAyuTzvPVTSkCKnTD79uKOQstd8Pw4op8EQsidK3h8MSKPwsidb3qy2AiFCyy3fHJkX0iIg==" type="audio/wav">
+    </audio>
+
+    <script src="{{ url_for('static', filename='script_with_api.js') }}"></script>
+</body>
+</html>
