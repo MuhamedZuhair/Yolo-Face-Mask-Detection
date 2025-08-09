@@ -9,7 +9,7 @@ A comprehensive face mask detection system using YOLOv8 with a modern web interf
 | **AI Model**          | [ MuhamedZuhair ](https://github.com/MuhamedZuhair)               | Trained and fine-tuned the YOLOv8 model for face mask detection. |
 | **Model Deployment**  | [ HossamٍSalah ](https://github.com/HossamCSE)                     | Deployed the YOLOv8 model into a production-ready environment. |
 | **Data Preparation**  | [ MuhamedZuhair](https://github.com/HossamCSE)                     | Collected, cleaned, and prepared datasets for optimal model performance. |
-| **Testing & QA**      | [ MuhamedZuhair - HossamٍSalah ]( https://github.com/MuhamedZuhair - https://github.com/HossamCSE )                     | Validated model accuracy and ensured stable API performance. |
+| **Testing & QA**      | [ MuhamedZuhair] & [ HossamٍSalah ]                    | Validated model accuracy and ensured stable API performance. |
 
 
 ## Features 
